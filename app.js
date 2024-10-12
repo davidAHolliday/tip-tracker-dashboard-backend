@@ -13,9 +13,8 @@ connectDB();
 
 
 const app = express();
-const PORT = 3000;
+const PORT = 3225;
 
-const translist = []
 
 //USE body parser to parse request
 app.use(bodyParser.json())
