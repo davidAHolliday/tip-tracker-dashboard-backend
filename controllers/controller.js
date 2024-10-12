@@ -160,7 +160,14 @@ function processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday
 
 
 exports.getSummary = async (req, res)=>{
-    const date = new Date(); 
+    const viewDate = req.params.date
+    let date;
+    if(viewDate){
+         date = new Date(viewDate); 
+
+    }else{
+        date = new Date(); 
+    }
     //Create Window for View
     const { startDayOfWeek,endOfWeek,today} = getWeekStartAndEnd(date);
 
