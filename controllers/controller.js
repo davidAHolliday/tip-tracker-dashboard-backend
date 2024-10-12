@@ -125,6 +125,14 @@ function processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday
     }
 
 
+    exports.deleteTransactionById = async (req,res) =>{
+       const id =  req.params.id;
+       const deleteTransactions = await Transaction.findByIdAndDelete(id);
+       res.status(200).json(deleteTransactions);
+
+    }
+
+
  //Get transatctions
  exports.getTransactionsByPeriod = async (req, res) => {
     try {
