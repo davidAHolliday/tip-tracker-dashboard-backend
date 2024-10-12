@@ -13,7 +13,6 @@ connectDB();
 
 
 const app = express();
-const PORT = 3225;
 
 
 //USE body parser to parse request
@@ -25,6 +24,7 @@ app.use(cors());
 //Routes
 app.use('/api', routes)
 
-app.listen(PORT, ()=>{
-    console.log("Server Running")
-})
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
