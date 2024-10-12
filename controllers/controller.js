@@ -94,7 +94,7 @@ const Transaction = require('../models/transactionModel')
 
  }
 
-function processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday){
+function processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday,svcCharge){
     this.timeStamp = new Date();
     this.timeIn = new Date(timeIn);
     this.timeOut = new Date(timeOut);
@@ -102,6 +102,7 @@ function processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday
     this.creditCardTips = creditCardTips;
     this.tipOut = tipOut;
     this.holliday = holliday;
+    this.svcCharge = svcCharge;
 }
  
 
@@ -109,10 +110,10 @@ function processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday
 
  //post transactions
  exports.postTransactions = async (req,res)=>{
-    const {timeIn,timeOut,creditCardTips,tipOut,holliday} = req.body;
-    const {hoursWorked} = new processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday)
+    const {timeIn,timeOut,creditCardTips,tipOut,holliday,svcCharge} = req.body;
+    const {hoursWorked} = new processTransactionRequest(timeIn,timeOut,creditCardTips,tipOut,holliday,svcCharge)
 
-    const transaction = new Transaction({timeIn,timeOut,hoursWorked,creditCardTips,tipOut,holliday})
+    const transaction = new Transaction({timeIn,timeOut,hoursWorked,creditCardTips,svcCharge,tipOut,holliday})
     try{
         const newTransaction = await transaction.save();
         res.status(201).json(newTransaction);
@@ -177,10 +178,13 @@ exports.getSummary = async (req, res)=>{
                 creditCardTipsThisPeriod: acc.creditCardTipsThisPeriod + curr.creditCardTips,
                 hoursWorkedThisPeriod: acc.hoursWorkedThisPeriod + curr.hoursWorked,
                 tipOutThisPeriod: acc.tipOutThisPeriod + curr.tipOut,
+                svcChargeThisPeriod: acc.svcChargeThisPeriod + curr.svcCharge,
+
 
         }
+        
 
-    },{ creditCardTipsThisPeriod: 0, hoursWorkedThisPeriod: 0,tipOutThisPeriod:0 })
+    },{ creditCardTipsThisPeriod: 0, hoursWorkedThisPeriod: 0,tipOutThisPeriod:0,svcChargeThisPeriod:0 })
 
     const calculateHourlyPay = (hoursWorkedThisPeriod) => {
         let hoursWorked = hoursWorkedThisPeriod;
@@ -203,10 +207,10 @@ exports.getSummary = async (req, res)=>{
     const summaryDetails = {
             
             summary: summary, 
-            avgTipsPerShift: summary.creditCardTipsThisPeriod/inAppDatabase.length,
-            avgHourlyRate: (summary.creditCardTipsThisPeriod + calculateHourlyPay(summary.hoursWorkedThisPeriod))/summary.hoursWorkedThisPeriod,
-            amountNeededToGoal: 1400 - summary.creditCardTipsThisPeriod,
-            daysLeftInWeek: 7 - inAppDatabase.length,
+            //Tips Include SvcCharge
+            avgTipsPerShift: (summary.creditCardTipsThisPeriod + summary.svcChargeThisPeriod)/inAppDatabase.length,
+            avgHourlyRate: ((summary.creditCardTipsThisPeriod + summary.svcChargeThisPeriod) + calculateHourlyPay(summary.hoursWorkedThisPeriod))/summary.hoursWorkedThisPeriod,
+            amountNeededToGoal: 1400 - (summary.creditCardTipsThisPeriod + summary.svcChargeThisPeriod),
             hourlyPayEarned: calculateHourlyPay(summary.hoursWorkedThisPeriod)
         }
 

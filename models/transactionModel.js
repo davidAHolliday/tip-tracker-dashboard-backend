@@ -23,6 +23,10 @@ const transactionSchema = new mongoose.Schema({
         type: Number,
         required: true,      // Ensure credit card tips are provided
     },
+    svcCharge: {
+        type: Number,
+        required: true,      // Ensure credit card tips are provided
+    },
     tipOut: {
         type: Number,
         required: true,      // Ensure tip out is provided
